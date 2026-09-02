@@ -1,0 +1,46 @@
+{
+  "name": "dsh-apify-plugin",
+  "version": "0.1.0",
+  "description": "Apify Actors for DeepSeek Harness: adds the Apify MCP server to your profile.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apify/apify-deepseek-harness-plugin.git"
+  },
+  "homepage": "https://apify.com",
+  "bugs": {
+    "url": "https://github.com/apify/apify-deepseek-harness-plugin/issues"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "files": [
+    "cordis.patch.yml",
+    "mount-skills.js",
+    "skills",
+    "README.md"
+  ],
+  "keywords": [
+    "dsh-plugin",
+    "apify",
+    "mcp",
+    "web-scraping"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "verify": "node scripts/verify-bundle.mjs"
+  },
+  "exports": {
+    ".": "./cordis.patch.yml",
+    "./mount-skills": "./mount-skills.js",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-skill-filesystem": "*"
+  }
+}

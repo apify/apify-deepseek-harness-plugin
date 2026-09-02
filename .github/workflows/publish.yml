@@ -1,0 +1,72 @@
+name: Release & Publish Apify DeepSeek Harness Plugin
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
+          fetch-depth: 0
+          ref: ${{ github.event.release.target_commitish }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      # No install step: the bundle has no dependencies and no build. That is
+      # deliberate — an install-time build would put pnpm's allowBuilds prompt
+      # between the user and a working plugin.
+
+      - name: Verify bundle
+        run: npm run verify
+
+      # The tag reaches the shell through the environment, never through
+      # ${{ }} interpolation: a crafted tag name would otherwise be executed.
+      - name: Extract release version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+
+      - name: Update package.json version
+        run: |
+          echo "Updating package.json to version ${{ env.VERSION }}"
+          npm version ${{ env.VERSION }} --no-git-tag-version
+
+      - name: Commit version update
+        uses: apify/actions/signed-commit@v1.1.2
+        with:
+          message: 'chore(release): set version to ${{ env.VERSION }} [skip ci]'
+          add: 'package.json'
+          github-token: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
+          branch: ${{ github.event.release.target_commitish }}
+
+      - name: Publish to npm
+        run: |
+          if npm view dsh-apify-plugin@${{ env.VERSION }} version > /dev/null 2>&1; then
+            echo "Version ${{ env.VERSION }} of dsh-apify-plugin is already published to npm. Skipping publish step."
+          else
+            echo "Publishing dsh-apify-plugin@${{ env.VERSION }} to npm..."
+            npm publish --provenance --access public
+          fi
+
+      - name: Attach tarball to the release
+        run: |
+          npm pack --pack-destination dist
+          gh release upload "$TAG" dist/*.tgz --clobber
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          GH_TOKEN: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
