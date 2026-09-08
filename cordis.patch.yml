@@ -12,7 +12,7 @@
         # The anonymous tier is tool-gated, not just header-gated: requesting
         # `tools=actors` without a token is rejected with 401. So the tool set
         # has to narrow alongside the header, not just the header.
-        url: !!js 'process.env.APIFY_TOKEN ? "https://mcp.apify.com/?client=deepseek-harness+plugin&tools=actors,docs,apify/rag-web-browser" : "https://mcp.apify.com/?client=deepseek-harness+plugin&tools=search-actors,fetch-actor-details,search-apify-docs,fetch-apify-docs"'
+        url: !!js 'process.env.APIFY_TOKEN ? "https://mcp.apify.com/?client=deepseek-harness+plugin" : "https://mcp.apify.com/?client=deepseek-harness+plugin&tools=search-actors,fetch-actor-details,search-apify-docs,fetch-apify-docs"'
         # Attached only when set, so an unset variable falls back to the
         # anonymous tier instead of sending `Bearer undefined` and 401ing.
         headers: !!js 'process.env.APIFY_TOKEN ? { Authorization: "Bearer " + process.env.APIFY_TOKEN } : {}'
