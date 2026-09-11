@@ -2,8 +2,6 @@
 
 Search, run, and build [Apify Actors](https://apify.com/store) directly from [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
 
-Verified against `@deepseek-ai/dsh@0.1.1-rc.2`.
-
 ## Before you start
 
 - **Node.js `^22.19.0 || >=24.0.0`.** Older versions fail with a `node:sqlite` error.
