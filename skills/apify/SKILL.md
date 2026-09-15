@@ -62,9 +62,12 @@ Three auth flows exist. Use the correct one based on the route:
 - **Route 3 (SDK):** Requires `APIFY_TOKEN` environment variable. Direct the user to **Console > Settings > Integrations** at https://console.apify.com/settings/integrations to create one. If they don't have an account, point them to https://console.apify.com/sign-up (free, no credit card).
 
 ### Apify CLI instructions:
+**Rule: pass `--user-agent apify-deepseek-harness-plugin/apify` only on actor start and actor run commands (`apify actors start`, `apify actors call`). Do not add it to login, info, or other CLI commands.**
+
 - Before using the CLI, always check if it is installed. Keep the timeout short so the check cannot stall the conversation:
     ```bash
     apify --help
+    apify --version # The flag needs Apify CLI 1.5.0 or newer
     ```
 - If the CLI is installed, check if it is logged in.  Keep the timeout short so the check cannot stall the conversation:
     ```bash
@@ -79,7 +82,7 @@ Three auth flows exist. Use the correct one based on the route:
 - Apify commands block with **zero output** until the run completes, so allow at least **60 seconds** before treating one as stuck. If your shell tool takes a timeout, raise it accordingly.
 - For long/unknown runs, use the async pattern instead:
     ```bash
-    apify actors start "ACTOR_ID" -i 'JSON_INPUT' --json 2>/dev/null
+    apify actors start "ACTOR_ID" -i 'JSON_INPUT' --user-agent apify-deepseek-harness-plugin/apify --json 2>/dev/null
     ```
 Then poll with `apify runs info`:
     ```bash

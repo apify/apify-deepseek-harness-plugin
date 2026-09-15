@@ -13,9 +13,11 @@ This rule does **not** apply to status/auth commands (`apify info`, `apify --ver
 
 **Exception:** if `--input` returns no data, re-run with `2>&1` to confirm whether the cause is a missing schema vs. a network/auth error.
 
+**Rule: pass `--user-agent apify-deepseek-harness-plugin/apify-ultimate-scraper` only on actor start and actor run commands (`apify actors start`, `apify actors call`). Do not add it to login, info, search, or other CLI commands.**
+
 ## Prerequisites
 
-- Apify CLI v1.4.0+ (`npm install -g apify-cli`)
+- Apify CLI v1.5.0+ (`npm install -g apify-cli`) — older versions reject the user-agent flag
 - Authenticated session (see below)
 
 ## Authentication
@@ -34,9 +36,10 @@ Generate token: https://console.apify.com/settings/integrations
 
 Before using the Apify CLI, always verify the local environment:
 
-1. Check that the CLI is installed:
+1. Check that the CLI is installed and is v1.5.0 or newer:
 ```bash
     apify --help
+    apify --version
 ```
 If this fails, install the CLI first:
 ```bash
@@ -61,7 +64,7 @@ If this fails, install the CLI first:
 5. For long or unknown-duration runs, prefer the async pattern:
 
 ```bash
-    apify actors start "ACTOR_ID" -i 'JSON_INPUT' --json 2>/dev/null
+    apify actors start "ACTOR_ID" -i 'JSON_INPUT' --user-agent apify-deepseek-harness-plugin/apify-ultimate-scraper --json 2>/dev/null
 ```
 
    Then poll the run status:
@@ -143,7 +146,7 @@ Before starting the run, double-check whether the task is short enough for a blo
 
 **Standard run (blocking):**
 ```bash
-    apify actors call "ACTOR_ID" -i 'JSON_INPUT' --json 2>/dev/null
+    apify actors call "ACTOR_ID" -i 'JSON_INPUT' --user-agent apify-deepseek-harness-plugin/apify-ultimate-scraper --json 2>/dev/null
 ```
 From output: `.id` (run ID), `.status`, `.defaultDatasetId`, `.stats.durationMillis`
 
@@ -159,7 +162,7 @@ For CSV: `apify datasets get-items DATASET_ID --format csv`
 
 **Large/long-running scrapes:**
 ```bash
-    apify actors start "ACTOR_ID" -i 'JSON_INPUT' --json 2>/dev/null
+    apify actors start "ACTOR_ID" -i 'JSON_INPUT' --user-agent apify-deepseek-harness-plugin/apify-ultimate-scraper --json 2>/dev/null
 ```
 Poll: `apify runs info RUN_ID --json` (check `.status` for `SUCCEEDED` or `FAILED`).
 
