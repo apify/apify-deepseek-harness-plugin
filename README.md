@@ -38,7 +38,7 @@ Override either bundle row by `id` from your profile's `cordis.patch.yml`. See `
 
 **The agent says it cannot run an Actor.** You're in discovery-only mode. Set `APIFY_TOKEN` and restart.
 
-**npm reports root-owned files and suggests `sudo chown`.** The default **Workspace Write** sandbox blocks writes outside your workspace, including the npm cache in `~/.npm`, and npm reports that as an ownership problem. Running `sudo chown` doesn't help. Approve the agent's escalation prompt, or switch to **Full access** in the `dsh` session toolbar.
+**npm reports root-owned files and suggests `sudo chown`.** The default **Workspace Write** sandbox blocks writes outside your workspace, including the npm cache in `~/.npm`, and npm reports that as an ownership problem. `sudo chown` doesn't help, so reject any prompt to run it. To get past the error, run the command that failed (such as `apify create` or `npm install`) yourself in the workspace directory and let the agent continue. Approving the agent's escalation or switching to **Full access** also works, but it gives the agent unrestricted access to your whole system, so do that only if you trust the model, or run `dsh` in a container or VM.
 
 ## Remove
 
