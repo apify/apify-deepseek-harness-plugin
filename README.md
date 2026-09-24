@@ -6,7 +6,7 @@ Search, run, and build [Apify Actors](https://apify.com/store) directly from [De
 
 - **Node.js `^22.19.0 || >=24.0.0`.** Older versions fail with a `node:sqlite` error.
 - **pnpm on PATH.** `dsh plugin` forwards to it.
-- **An Apify API token** from [Apify Console](https://console.apify.com/settings/integrations?utm_source=deepseek-harness&utm_medium=integrations) (free accounts work). Without a token only search/inspect tools load. Alternatively, install the [Apify CLI](https://docs.apify.com/cli) (`npm i -g apify-cli && apify login`) to run Actors without a token (requires **Full access** sandbox mode).
+- **An Apify API token** from [Apify Console](https://console.apify.com/settings/integrations?utm_source=deepseek-harness&utm_medium=integrations) (free accounts work). Without a token only search/inspect tools load. If you already use the logged-in [Apify CLI](https://docs.apify.com/cli), the agent can run Actors through it instead (requires **Full access** sandbox mode).
 
 ## Install
 
@@ -37,6 +37,8 @@ Override either bundle row by `id` from your profile's `cordis.patch.yml`. See `
 **`invalid_token` on startup.** Token is set but wrong. Fix it and restart.
 
 **The agent says it cannot run an Actor.** You're in discovery-only mode. Set `APIFY_TOKEN` and restart.
+
+**npm reports root-owned files and suggests `sudo chown`.** The default **Workspace Write** sandbox blocks writes outside your workspace, including the npm cache in `~/.npm`, and npm reports that as an ownership problem. Running `sudo chown` doesn't help. Approve the agent's escalation prompt, or switch to **Full access** in the `dsh` session toolbar.
 
 ## Remove
 
