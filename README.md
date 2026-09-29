@@ -6,8 +6,8 @@ Search, run, and build [Apify Actors](https://apify.com/store) directly from [De
 
 | Component | Name | Purpose | Needs |
 |---|---|---|---|
-| MCP server | `apify` (`https://mcp.apify.com/`) | Searches Apify Store, fetches Actor details and docs. With a token it also runs Actors and reads their results. | `APIFY_TOKEN` to run Actors |
 | Skill (entry point) | `apify` | Routes each Apify request to the right skill or tool. | - |
+| MCP server | `apify` (`https://mcp.apify.com/`) | Searches Apify Store, fetches Actor details and docs. With a token it also runs Actors and reads their results. | `APIFY_TOKEN` to run Actors |
 | Skill | `apify-ultimate-scraper` | Multi-step scraping workflows across 15+ platforms. | Apify CLI |
 | Skill | `apify-actor-development` | Creates, tests, and deploys a new Actor. | Apify CLI |
 | Skill | `apify-actorization` | Turns an existing project into an Actor. | Apify CLI |
