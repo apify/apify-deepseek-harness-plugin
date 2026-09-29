@@ -4,15 +4,15 @@ Search, run, and build [Apify Actors](https://apify.com/store) directly from [De
 
 ## What you get
 
-| Component | What it does | Needs |
-|---|---|---|
-| MCP server `apify` | Searches Apify Store, fetches Actor details and docs. With a token it also runs Actors and reads their results. | `APIFY_TOKEN` to run Actors |
-| Skill `apify` | Entry point: routes each Apify request to the right skill or tool. | - |
-| Skill `apify-ultimate-scraper` | Multi-step scraping workflows across 15+ platforms. | Apify CLI |
-| Skill `apify-actor-development` | Creates, tests, and deploys a new Actor. | Apify CLI |
-| Skill `apify-actorization` | Turns an existing project into an Actor. | Apify CLI |
-| Skill `apify-generate-output-schema` | Generates output schemas for an existing Actor from its source code. | - |
-| Skill `apify-sdk-integration` | Adds Actor runs to your own app with the `apify-client` package. | `APIFY_TOKEN` in your app |
+| Component | Name | Purpose | Needs |
+|---|---|---|---|
+| MCP server | `apify` (`https://mcp.apify.com/`) | Searches Apify Store, fetches Actor details and docs. With a token it also runs Actors and reads their results. | `APIFY_TOKEN` to run Actors |
+| Skill (entry point) | `apify` | Routes each Apify request to the right skill or tool. | - |
+| Skill | `apify-ultimate-scraper` | Multi-step scraping workflows across 15+ platforms. | Apify CLI |
+| Skill | `apify-actor-development` | Creates, tests, and deploys a new Actor. | Apify CLI |
+| Skill | `apify-actorization` | Turns an existing project into an Actor. | Apify CLI |
+| Skill | `apify-generate-output-schema` | Generates output schemas for an existing Actor from its source code. | - |
+| Skill | `apify-sdk-integration` | Adds Actor runs to your own app with the `apify-client` package. | `APIFY_TOKEN` in your app |
 
 Skills load when a request matches them, or run one directly as `/<skill-name>`. Skills marked "Apify CLI" need the [Apify CLI](https://docs.apify.com/cli) installed and logged in.
 
