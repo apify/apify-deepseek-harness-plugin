@@ -18,7 +18,7 @@ Skills load when a request matches them, or run one directly as `/<skill-name>`.
 
 ## Before you start
 
-- **Node.js `^22.19.0 || >=24.0.0`.** Older versions fail with a `node:sqlite` error.
+- **Node.js `^22.19.0 || >=24.2.0`.** On older versions, `dsh` exits without printing anything.
 - **pnpm on PATH.** `dsh plugin` forwards to it.
 - **An Apify API token** from [Apify Console](https://console.apify.com/settings/integrations?utm_source=deepseek-harness&utm_medium=integrations) (free accounts work). Without a token only search/inspect tools load. If you already use the logged-in [Apify CLI](https://docs.apify.com/cli), the agent can run Actors through it instead (requires **Full access** sandbox mode).
 
