@@ -1,24 +1,42 @@
-name: Release & Publish Apify DeepSeek Harness Plugin
+# npm's trusted publisher configuration for `dsh-apify-plugin` matches on this filename, so the
+# `npm publish` step has to stay in this file. See RELEASING.md.
+
+name: Release
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '`patch`, `minor`, `major`, or an exact version such as `0.2.0`.'
+        required: true
+        default: patch
+        type: string
+
+concurrency:
+  # A release must not be cancelled halfway through, so a second run queues instead.
+  group: release
+  cancel-in-progress: false
 
 permissions:
-  id-token: write
-  contents: write
+  contents: read
+  id-token: write # Trusted publishing (OIDC) and provenance.
 
 jobs:
-  build_and_release:
+  release:
+    name: Release
     runs-on: ubuntu-latest
 
     steps:
+      - name: Refuse to release from another branch or repository
+        if: ${{ github.ref_name != github.event.repository.default_branch || github.repository != 'apify/apify-deepseek-harness-plugin' }}
+        run: |
+          echo "::error::Releases must be dispatched from ${{ github.event.repository.default_branch }} in apify/apify-deepseek-harness-plugin."
+          exit 1
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
-          fetch-depth: 0
-          ref: ${{ github.event.release.target_commitish }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -27,46 +45,54 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       # No install step: the bundle has no dependencies and no build. That is
-      # deliberate — an install-time build would put pnpm's allowBuilds prompt
+      # deliberate - an install-time build would put pnpm's allowBuilds prompt
       # between the user and a working plugin.
-
       - name: Verify bundle
         run: npm run verify
 
-      # The tag reaches the shell through the environment, never through
-      # ${{ }} interpolation: a crafted tag name would otherwise be executed.
-      - name: Extract release version
+      # The input reaches the shell through the environment, never through ${{ }}
+      # interpolation, so a crafted value cannot be executed.
+      - name: Set the version
         env:
-          TAG: ${{ github.event.release.tag_name }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+          if ! [[ "$INPUT_VERSION" =~ ^(patch|minor|major|[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "::error::version must be patch, minor, major, or X.Y.Z, got '$INPUT_VERSION'."
+            exit 1
+          fi
+          npm version "$INPUT_VERSION" --no-git-tag-version --allow-same-version
+          echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
 
-      - name: Update package.json version
-        run: |
-          echo "Updating package.json to version ${{ env.VERSION }}"
-          npm version ${{ env.VERSION }} --no-git-tag-version
-
-      - name: Commit version update
-        uses: apify/actions/signed-commit@v1.1.2
-        with:
-          message: 'chore(release): set version to ${{ env.VERSION }} [skip ci]'
-          add: 'package.json'
-          github-token: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
-          branch: ${{ github.event.release.target_commitish }}
-
+      # Publishing before committing keeps a failed run safe to re-run: nothing has been written
+      # yet, and a re-run that finds the version on npm skips straight to the commit and release.
       - name: Publish to npm
         run: |
-          if npm view dsh-apify-plugin@${{ env.VERSION }} version > /dev/null 2>&1; then
-            echo "Version ${{ env.VERSION }} of dsh-apify-plugin is already published to npm. Skipping publish step."
+          if npm view "dsh-apify-plugin@$VERSION" version > /dev/null 2>&1; then
+            echo "dsh-apify-plugin@$VERSION is already on npm. Skipping publish."
           else
-            echo "Publishing dsh-apify-plugin@${{ env.VERSION }} to npm..."
             npm publish --provenance --access public
           fi
 
-      - name: Attach tarball to the release
-        run: |
-          npm pack --pack-destination dist
-          gh release upload "$TAG" dist/*.tgz --clobber
+      # The pull makes a re-run find the bump already on main and skip the commit.
+      - name: Commit the version
+        id: commit
+        uses: apify/actions/signed-commit@v1.6.2
+        with:
+          message: 'chore(release): v${{ env.VERSION }} [skip ci]'
+          add: package.json
+          pull: '--rebase --autostash'
+          github-token: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
+
+      - name: Create the GitHub release
         env:
-          TAG: ${{ github.event.release.tag_name }}
           GH_TOKEN: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
+          TARGET: ${{ steps.commit.outputs.commit_long_sha }}
+        run: |
+          if gh release view "v$VERSION" > /dev/null 2>&1; then
+            echo "Release v$VERSION already exists. Skipping."
+            exit 0
+          fi
+          # npm pack fails with ENOENT when the destination does not exist.
+          mkdir -p dist
+          npm pack --pack-destination dist
+          gh release create "v$VERSION" dist/*.tgz --target "$TARGET" --title "v$VERSION" --generate-notes

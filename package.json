@@ -12,7 +12,7 @@
     "url": "https://github.com/apify/apify-deepseek-harness-plugin/issues"
   },
   "engines": {
-    "node": "^22.19.0 || >=24.0.0"
+    "node": "^22.19.0 || >=24.2.0"
   },
   "type": "module",
   "files": [
