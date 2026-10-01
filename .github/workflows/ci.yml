@@ -14,3 +14,35 @@ jobs:
         with:
           node-version: '24.x'
       - run: npm run verify
+
+  # verify inspects the bundle but never starts dsh, so this installs the packed plugin into dsh on
+  # both floors of the engines range and checks that the profile loads it.
+  smoke:
+    name: Load in dsh (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22.19.0', '24.2.0']
+    env:
+      DSH_VERSION: 0.2.0-rc.2
+      DSH_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install dsh and pnpm
+        run: npm install -g "@deepseek-ai/dsh@$DSH_VERSION" pnpm@10
+      - name: Install the packed plugin and load the profile
+        # The tarball goes to the short runner temp path: pnpm encodes a local tarball's path into a
+        # store filename, which fails with ENAMETOOLONG under a deep workspace.
+        run: |
+          tarball="$RUNNER_TEMP/$(npm pack --pack-destination "$RUNNER_TEMP" | tail -n 1)"
+          export DSH_HOME="$RUNNER_TEMP/dsh-home"
+          dsh plugin --profile headless add "$tarball"
+          dsh --profile headless --dump-config > config.yml
+          if ! grep -q 'id: apify-mcp' config.yml || ! grep -q 'id: apify-skills' config.yml; then
+            echo "::error::dsh did not load the plugin on Node ${{ matrix.node }}."
+            exit 1
+          fi

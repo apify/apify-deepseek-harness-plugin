@@ -16,7 +16,7 @@ If a run fails, use **Re-run jobs** on that run rather than dispatching a new on
 the same commit, so it computes the same version, skips the npm publish and the commit when they
 already happened, and finishes the rest. A new dispatch after a partial run would bump again.
 
-Skill updates from `apify-plugins` land on `main` as sync commits and are not released until someone
+Skill updates from `apify-plugins-internal` land on `main` as sync commits and are not released until someone
 dispatches a release.
 
 ## Repository configuration
