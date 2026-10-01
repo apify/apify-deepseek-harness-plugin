@@ -1,6 +1,6 @@
 {
   "name": "dsh-apify-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Apify Actors for DeepSeek Harness: adds the Apify MCP server to your profile.",
   "license": "Apache-2.0",
   "repository": {
