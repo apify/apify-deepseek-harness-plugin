@@ -25,7 +25,9 @@ jobs:
       matrix:
         node: ['22.19.0', '24.2.0']
     env:
-      DSH_VERSION: 0.2.0-rc.2
+      # Tracks what users get from `npx @deepseek-ai/dsh`, so a dsh release that breaks the plugin
+      # shows up here.
+      DSH_VERSION: latest
       DSH_TELEMETRY_DISABLED: 1
     steps:
       - uses: actions/checkout@v4
