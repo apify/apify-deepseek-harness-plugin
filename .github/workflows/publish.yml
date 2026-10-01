@@ -41,10 +41,12 @@ jobs:
         run: |
           echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
 
+      # --allow-same-version: a re-run checks out main after the bump commit
+      # below already landed, so the version may already match.
       - name: Update package.json version
         run: |
-          echo "Updating package.json to version ${{ env.VERSION }}"
-          npm version ${{ env.VERSION }} --no-git-tag-version
+          echo "Updating package.json to version $VERSION"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
 
       - name: Commit version update
         uses: apify/actions/signed-commit@v1.1.2
@@ -56,15 +58,17 @@ jobs:
 
       - name: Publish to npm
         run: |
-          if npm view dsh-apify-plugin@${{ env.VERSION }} version > /dev/null 2>&1; then
-            echo "Version ${{ env.VERSION }} of dsh-apify-plugin is already published to npm. Skipping publish step."
+          if npm view "dsh-apify-plugin@$VERSION" version > /dev/null 2>&1; then
+            echo "Version $VERSION of dsh-apify-plugin is already published to npm. Skipping publish step."
           else
-            echo "Publishing dsh-apify-plugin@${{ env.VERSION }} to npm..."
+            echo "Publishing dsh-apify-plugin@$VERSION to npm..."
             npm publish --provenance --access public
           fi
 
       - name: Attach tarball to the release
         run: |
+          # npm pack fails with ENOENT when the destination does not exist.
+          mkdir -p dist
           npm pack --pack-destination dist
           gh release upload "$TAG" dist/*.tgz --clobber
         env:
