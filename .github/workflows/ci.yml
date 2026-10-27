@@ -13,6 +13,8 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24.x'
+          # Without it, a runner's cached 24.x can lag behind the latest security release.
+          check-latest: true
       - run: npm run verify
 
   # verify inspects the bundle but never starts dsh, so this installs the packed plugin into dsh on
