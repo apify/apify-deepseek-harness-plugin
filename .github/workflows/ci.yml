@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ['22.19.0', '24.2.0']
+        node: ['22.23.4', '24.22.1']
     env:
       # Tracks what users get from `npx @deepseek-ai/dsh`, so a dsh release that breaks the plugin
       # shows up here.
